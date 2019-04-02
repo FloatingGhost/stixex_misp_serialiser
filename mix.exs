@@ -22,7 +22,8 @@ defmodule StixexMispSerialiser.MixProject do
   defp deps do
     [
       {:stixex, github: "floatingghost/stixex"},
-      {:mispex, github: "floatingghost/mispex"}
+      {:mispex, github: "floatingghost/mispex"},
+      {:jason, "~> 1.1"}
     ]
   end
 end

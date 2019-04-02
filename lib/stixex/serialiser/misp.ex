@@ -123,6 +123,8 @@ defmodule StixEx.Serialiser.MISP do
 
   @impl StixEx.Serialiser
   def to_string(struct) do
-  
+    struct
+    |> convert()
+    |> Jason.encode()
   end
 end
