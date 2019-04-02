@@ -30,7 +30,7 @@ defmodule StixEx.Serialiser.MISP do
 
   def convert(%{type: "windows_registry_key", key: key, values: values}) do
     if Enum.count(values) > 0 do
-      Enum.map(values, &(%{type: "regkey|value", value: "#{key}|#{&1.data}"}))
+      Enum.map(values, &%{type: "regkey|value", value: "#{key}|#{&1.data}"})
     else
       %{type: "regkey", value: key}
     end
@@ -53,8 +53,10 @@ defmodule StixEx.Serialiser.MISP do
   end
 
   def convert(%{type: "file", name: name, hashes: hashes}) do
-    [%Attribute{type: "filename", value: name},
-     get_common_hashes(hashes, type_prefix: "filename|", value_prefix: "#{name}|")]
+    [
+      %Attribute{type: "filename", value: name},
+      get_common_hashes(hashes, type_prefix: "filename|", value_prefix: "#{name}|")
+    ]
   end
 
   def convert(%{type: "ipv6-addr", value: value}) do
@@ -94,12 +96,13 @@ defmodule StixEx.Serialiser.MISP do
   end
 
   def convert(%{type: "threat-actor", name: name, aliases: aliases}) do
-    [%Attribute{type: "threat-actor", value: name},
-     if is_nil(aliases) do
-      []
-     else
-      Enum.map(aliases, &(%Attribute{type: "threat-actor", value: &1}))
-     end
+    [
+      %Attribute{type: "threat-actor", value: name},
+      if is_nil(aliases) do
+        []
+      else
+        Enum.map(aliases, &%Attribute{type: "threat-actor", value: &1})
+      end
     ]
   end
 
@@ -114,16 +117,18 @@ defmodule StixEx.Serialiser.MISP do
   """
   def get_common_hashes(hashes, opts \\ [type_prefix: "", value_prefix: ""])
   def get_common_hashes(nil, _opts), do: []
+
   def get_common_hashes(hashes, opts) do
-    hashes = [
-      {"md5", Map.get(hashes, :MD5)},
-      {"sha1", Map.get(hashes, :SHA1)},
-      {"sha256", Map.get(hashes, :SHA256)}
-    ]
-    |> Enum.filter(fn {_, x} -> not is_nil(x) end)
-    |> Enum.map(fn {h, x} ->
-      %Attribute{type: "#{opts[:type_prefix]}#{h}", value: "#{opts[:value_prefix]}#{x}"}
-    end)
+    hashes =
+      [
+        {"md5", Map.get(hashes, :MD5)},
+        {"sha1", Map.get(hashes, :SHA1)},
+        {"sha256", Map.get(hashes, :SHA256)}
+      ]
+      |> Enum.filter(fn {_, x} -> not is_nil(x) end)
+      |> Enum.map(fn {h, x} ->
+        %Attribute{type: "#{opts[:type_prefix]}#{h}", value: "#{opts[:value_prefix]}#{x}"}
+      end)
   end
 
   @impl StixEx.Serialiser

@@ -12,6 +12,5 @@ defmodule StixexMispSerialiserTest do
       end
       |> Enum.all?(fn x -> x == :ok end)
     end
-
   end
 end
