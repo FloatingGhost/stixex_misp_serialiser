@@ -95,7 +95,12 @@ defmodule StixEx.Serialiser.MISP do
 
   def convert(%{type: "threat-actor", name: name, aliases: aliases}) do
     [%Attribute{type: "threat-actor", value: name},
-     Enum.map(aliases, &(%Attribute{type: "threat-actor", value: &1}))]
+     if is_nil(aliases) do
+      []
+     else
+      Enum.map(aliases, &(%Attribute{type: "threat-actor", value: &1}))
+     end
+    ]
   end
 
   def convert(other) do
