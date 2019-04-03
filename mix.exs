@@ -4,6 +4,9 @@ defmodule StixexMispSerialiser.MixProject do
   def project do
     [
       app: :stixex_misp_serialiser,
+      description: "A serialiser from Stix to MISP",
+      source_url: "https://github.com/FloatingGhost/stixex_misp_serialiser",
+      package: package(),
       version: "0.1.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
@@ -21,9 +24,19 @@ defmodule StixexMispSerialiser.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:stixex, github: "floatingghost/stixex"},
-      {:mispex, github: "floatingghost/mispex"},
+      {:stixex, "~> 0.1.3"},
+      {:mispex, "~> 0.1.8"},
       {:jason, "~> 1.1"}
     ]
   end
+
+  defp package() do
+    [
+      licenses: ["MIT"],
+      links: %{
+        "github" => "https://github.com/FloatingGhost/stixex_misp_serialiser"
+      }
+    ]
+  end
+
 end
