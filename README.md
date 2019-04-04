@@ -12,7 +12,7 @@ by adding `stixex_misp_serialiser` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:stixex_misp_serialiser, "~> 0.1.0"}
+    {:stixex_misp_serialiser, "~> 0.1.1"}
   ]
 end
 ```

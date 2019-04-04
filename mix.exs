@@ -7,7 +7,7 @@ defmodule StixexMispSerialiser.MixProject do
       description: "A serialiser from Stix to MISP",
       source_url: "https://github.com/FloatingGhost/stixex_misp_serialiser",
       package: package(),
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       deps: deps()
