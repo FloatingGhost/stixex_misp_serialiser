@@ -1,12 +1,13 @@
 defmodule StixEx.Serialiser.MISP do
+  @moduledoc """
+  A serialiser to convert to MISP's data format
+  """
+
   @behaviour StixEx.Serialiser
 
   require Logger
   alias MISP.Attribute
 
-  @doc """
-  Convert from a bundle to a MISP object
-  """
   defp convert(stix_object)
 
   defp convert([stix_object | rest]) do
@@ -17,7 +18,7 @@ defmodule StixEx.Serialiser.MISP do
 
   defp convert([]), do: []
 
-  defp convert(%{type: "bundle", id: "bundle--" <> id, objects: objects} = struct) do
+  defp convert(%{type: "bundle", id: "bundle--" <> id, objects: objects}) do
     %MISP.Event{
       Event: %MISP.EventInfo{
         uuid: id,
@@ -121,16 +122,15 @@ defmodule StixEx.Serialiser.MISP do
   def get_common_hashes(nil, _opts), do: []
 
   def get_common_hashes(hashes, opts) do
-    hashes =
-      [
-        {"md5", Map.get(hashes, :MD5)},
-        {"sha1", Map.get(hashes, :SHA1)},
-        {"sha256", Map.get(hashes, :SHA256)}
-      ]
-      |> Enum.filter(fn {_, x} -> not is_nil(x) end)
-      |> Enum.map(fn {h, x} ->
-        %Attribute{type: "#{opts[:type_prefix]}#{h}", value: "#{opts[:value_prefix]}#{x}"}
-      end)
+    [
+      {"md5", Map.get(hashes, :MD5)},
+      {"sha1", Map.get(hashes, :SHA1)},
+      {"sha256", Map.get(hashes, :SHA256)}
+    ]
+    |> Enum.filter(fn {_, x} -> not is_nil(x) end)
+    |> Enum.map(fn {h, x} ->
+      %Attribute{type: "#{opts[:type_prefix]}#{h}", value: "#{opts[:value_prefix]}#{x}"}
+    end)
   end
 
   @impl StixEx.Serialiser
