@@ -26,7 +26,8 @@ defmodule StixexMispSerialiser.MixProject do
     [
       {:stixex, "~> 0.1.3"},
       {:mispex, "~> 0.1.8"},
-      {:jason, "~> 1.1"}
+      {:jason, "~> 1.1"},
+      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
 
@@ -38,5 +39,4 @@ defmodule StixexMispSerialiser.MixProject do
       }
     ]
   end
-
 end

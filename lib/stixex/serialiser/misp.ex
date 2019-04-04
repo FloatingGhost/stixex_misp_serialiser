@@ -7,28 +7,30 @@ defmodule StixEx.Serialiser.MISP do
   @doc """
   Convert from a bundle to a MISP object
   """
-  def convert(stix_object)
+  defp convert(stix_object)
 
-  def convert([stix_object | rest]) do
+  defp convert([stix_object | rest]) do
     [convert(stix_object) | convert(rest)]
     |> List.flatten()
     |> Enum.filter(&(not is_nil(&1.value)))
   end
 
-  def convert([]), do: []
+  defp convert([]), do: []
 
-  def convert(%{type: "bundle", objects: objects} = struct) do
+  defp convert(%{type: "bundle", id: "bundle--" <> id, objects: objects} = struct) do
     %MISP.Event{
       Event: %MISP.EventInfo{
+        uuid: id,
         info: "From STIX",
         Attribute: convert(objects)
       }
     }
   end
 
-  def convert(%{type: "mutex", name: name}), do: %Attribute{type: "mutex", value: name}
+  defp convert(%{type: "mutex", name: name, id: "mutex--" <> id}),
+    do: %Attribute{type: "mutex", value: name, uuid: id}
 
-  def convert(%{type: "windows_registry_key", key: key, values: values}) do
+  defp convert(%{type: "windows_registry_key", key: key, values: values}) do
     if Enum.count(values) > 0 do
       Enum.map(values, &%{type: "regkey|value", value: "#{key}|#{&1.data}"})
     else
@@ -36,68 +38,68 @@ defmodule StixEx.Serialiser.MISP do
     end
   end
 
-  def convert(%{type: "mac-addr", value: value}) do
-    %Attribute{type: "mac-address", value: value}
+  defp convert(%{type: "mac-addr", value: value, id: "mac-addr--" <> id}) do
+    %Attribute{type: "mac-address", value: value, uuid: id}
   end
 
-  def convert(%{type: "email-addr", value: value}) do
-    %Attribute{type: "email-dst", value: value}
+  defp convert(%{type: "email-addr", value: value, id: "email-addr--" <> id}) do
+    %Attribute{type: "email-dst", value: value, uuid: id}
   end
 
-  def convert(%{type: "domain-name", value: value}) do
-    %Attribute{type: "domain", value: value}
+  defp convert(%{type: "domain-name", value: value, id: "domain-name--" <> id}) do
+    %Attribute{type: "domain", value: value, uuid: id}
   end
 
-  def convert(%{type: "x509-certificate", hashes: hashes}) when not is_nil(hashes) do
+  defp convert(%{type: "x509-certificate", hashes: hashes}) when not is_nil(hashes) do
     get_common_hashes(hashes, type_prefix: "x509-fingerprint-")
   end
 
-  def convert(%{type: "file", name: name, hashes: hashes}) do
+  defp convert(%{type: "file", name: name, hashes: hashes, id: "file--" <> id}) do
     [
-      %Attribute{type: "filename", value: name},
+      %Attribute{type: "filename", value: name, uuid: id},
       get_common_hashes(hashes, type_prefix: "filename|", value_prefix: "#{name}|")
     ]
   end
 
-  def convert(%{type: "ipv6-addr", value: value}) do
-    %Attribute{type: "ip-dst", value: value}
+  defp convert(%{type: "ipv6-addr", value: value, id: "ipv6-addr--" <> id}) do
+    %Attribute{type: "ip-dst", value: value, uuid: id}
   end
 
-  def convert(%{type: "user-account", user_id: value}) do
-    %Attribute{type: "target-user", value: value}
+  defp convert(%{type: "user-account", user_id: value, id: "user-account--" <> id}) do
+    %Attribute{type: "target-user", value: value, uuid: id}
   end
 
-  def convert(%{type: "ipv4-addr", value: value}) do
-    %Attribute{type: "ip-dst", value: value}
+  defp convert(%{type: "ipv4-addr", value: value, id: "ipv4-addr--" <> id}) do
+    %Attribute{type: "ip-dst", value: value, uuid: id}
   end
 
-  def convert(%{type: "url", value: value}) do
-    %Attribute{type: "url", value: value}
+  defp convert(%{type: "url", value: value, id: "url--" <> id}) do
+    %Attribute{type: "url", value: value, uuid: id}
   end
 
-  def convert(%{type: "autonomous-system", number: value}) do
-    %Attribute{type: "AS", value: value}
+  defp convert(%{type: "autonomous-system", number: value, id: "autonomous-system--" <> id}) do
+    %Attribute{type: "AS", value: value, uuid: id}
   end
 
-  def convert(%{type: "indicator", pattern: pattern}) do
-    %Attribute{type: "stix2-pattern", value: pattern}
+  defp convert(%{type: "indicator", pattern: pattern, id: "indicator--" <> id}) do
+    %Attribute{type: "stix2-pattern", value: pattern, uuid: id}
   end
 
-  def convert(%{type: "campaign", name: name}) do
-    %Attribute{type: "campaign-name", value: name}
+  defp convert(%{type: "campaign", name: name, id: "campaign--" <> id}) do
+    %Attribute{type: "campaign-name", value: name, uuid: id}
   end
 
-  def convert(%{type: "vulnerability", name: name}) do
-    %Attribute{type: "vulnerability", value: name}
+  defp convert(%{type: "vulnerability", name: name, id: "vulnerability--" <> id}) do
+    %Attribute{type: "vulnerability", value: name, uuid: id}
   end
 
-  def convert(%{type: "identity", name: name}) do
-    %Attribute{type: "first-name", value: name}
+  defp convert(%{type: "identity", name: name, id: "identity--" <> id}) do
+    %Attribute{type: "first-name", value: name, uuid: id}
   end
 
-  def convert(%{type: "threat-actor", name: name, aliases: aliases}) do
+  defp convert(%{type: "threat-actor", name: name, aliases: aliases, id: "threat-actor--" <> id}) do
     [
-      %Attribute{type: "threat-actor", value: name},
+      %Attribute{type: "threat-actor", value: name, uuid: id},
       if is_nil(aliases) do
         []
       else
@@ -106,7 +108,7 @@ defmodule StixEx.Serialiser.MISP do
     ]
   end
 
-  def convert(other) do
+  defp convert(other) do
     Logger.warn("Ignoring #{other.type}")
     []
   end
